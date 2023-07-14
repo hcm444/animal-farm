@@ -1,0 +1,6 @@
+name: animal-farm
+services:
+- name: web
+  github:
+    repo: hcm444/animal-farm
+    branch: main
