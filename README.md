@@ -2,6 +2,8 @@
 
 Animal Farm is a Flask-based web application for creating and participating in forum discussions. Feel free to contribute to isses!
 
+https://urchin-app-ihlrx.ondigitalocean.app/
+
 ## Features
 
 - User registration and login system
