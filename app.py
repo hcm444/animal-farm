@@ -6,6 +6,7 @@ import time
 from flask_caching import Cache
 import datetime
 import math
+
 app = Flask(__name__)
 cache = Cache(app)
 app.secret_key = "your-secret-key"
@@ -20,6 +21,8 @@ MAX_POSTS = 1000
 MAX_POSTS_PER_THREAD = 10
 POST_CHARS_LIMIT = 500
 COOL_DOWN_TIME = 30
+
+
 def create_users_last_post_table():
     with sqlite3.connect(DATABASE) as connection:
         cursor = connection.cursor()
@@ -27,8 +30,10 @@ def create_users_last_post_table():
             f"CREATE TABLE IF NOT EXISTS {USERS_LAST_POST_TABLE} (username TEXT PRIMARY KEY, last_post_time REAL)"
         )
 
+
 # Create the users_last_post table if it doesn't exist
 create_users_last_post_table()
+
 
 def extract_reply_id(content):
     match = re.search(r">>(\d+)", content)
@@ -36,6 +41,8 @@ def extract_reply_id(content):
         return int(match.group(1))
     else:
         return None
+
+
 # Create the users table if it doesn't exist
 with sqlite3.connect(DATABASE) as connection:
     cursor = connection.cursor()
@@ -87,7 +94,6 @@ def build_thread(posts):
 
     return threads
 
-
     posts_with_timestamps = [(post_id, username, content, timestamp) for post_id, username, content, timestamp in posts]
     threads = build_thread(posts_with_timestamps)
 
@@ -138,8 +144,6 @@ def index():
         return redirect(url_for("login"))
 
 
-
-
 @app.route("/post", methods=["POST"])
 def post():
     if "username" in session:
@@ -179,7 +183,6 @@ def post():
 
             if post_count >= MAX_POSTS_PER_THREAD:
                 return "The thread has reached the maximum number of posts."
-
 
         # Check if the user has posted recently
         with sqlite3.connect(DATABASE) as connection:
@@ -242,9 +245,6 @@ def post():
         return redirect(url_for("login"))
 
 
-
-
-
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
@@ -275,8 +275,6 @@ def register():
             connection.commit()
 
         return redirect(url_for("login"))
-
-
 
 
 @app.route("/login", methods=["GET", "POST"])
