@@ -60,51 +60,55 @@
         }
     </script>
 </head>
-<body>
-<h1>Animal Farm</h1>
-<form action="{{ url_for('post') }}" method="POST">
-    <textarea name="content" rows="3" cols="40"></textarea><br>
-    <input type="submit" value="Post">
-    <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
-    <a href="{{ url_for('about') }}" class="nav-link">About</a>
-</form>
-    {% for thread in threads %}
-        <div class="post">
-            <p class="post-content">
-                #<strong>{{ thread['post_id'] }}</strong> <strong>{{ thread['username'] }}</strong> <strong>{{ thread['timestamp'] }}</strong>: {{ thread['content'] }}
-                {% if thread['children'] %}
-                    <span id="{{ thread['post_id'] }}-toggle" class="reply-box-toggle" onclick="toggleReplyBox('{{ thread['post_id'] }}-replies')"></span>
-                {% endif %}
-            </p>
-            <div id="{{ thread['post_id'] }}-replies" class="reply-box" style="display: none;">
-                {% for child in thread['children'] %}
-                    <div class="post">
-                        <p class="post-content">
-                            #<strong>{{ child['post_id'] }}</strong> <strong>{{ child['username'] }}</strong> <strong>{{ child['timestamp'] }}</strong>: {{ child['content'] }}
-                        </p>
-                    </div>
-                {% endfor %}
+<body class="align">
+    <div class="grid">
+        <h1>Animal Farm</h1>
+        <form action="{{ url_for('post') }}" method="POST" class="form login">
+            <textarea name="content" rows="3" cols="40" class="form__input"></textarea><br>
+            <div class="form__field">
+                <input type="submit" value="Post">
             </div>
+            <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+            <a href="{{ url_for('about') }}" class="nav-link">About</a>
+        </form>
+            {% for thread in threads %}
+                <div class="post">
+                    <p class="post-content">
+                        #<strong>{{ thread['post_id'] }}</strong> <strong>{{ thread['username'] }}</strong> <strong>{{ thread['timestamp'] }}</strong>: {{ thread['content'] }}
+                        {% if thread['children'] %}
+                            <span id="{{ thread['post_id'] }}-toggle" class="reply-box-toggle" onclick="toggleReplyBox('{{ thread['post_id'] }}-replies')"></span>
+                        {% endif %}
+                    </p>
+                    <div id="{{ thread['post_id'] }}-replies" class="reply-box" style="display: none;">
+                        {% for child in thread['children'] %}
+                            <div class="post">
+                                <p class="post-content">
+                                    #<strong>{{ child['post_id'] }}</strong> <strong>{{ child['username'] }}</strong> <strong>{{ child['timestamp'] }}</strong>: {{ child['content'] }}
+                                </p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            </div>
+        <div class="pagination">
+        {% if current_page > 1 %}
+            <a href="{{ url_for('index', page=current_page-1) }}">Previous</a>
+        {% endif %}
+
+        {% for page_num in range(1, total_pages+1) %}
+            {% if page_num == current_page %}
+            <span class="current-page">{{ page_num }}</span>
+            {% else %}
+            <a href="{{ url_for('index', page=page_num) }}">{{ page_num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if current_page < total_pages %}
+            <a href="{{ url_for('index', page=current_page+1) }}">Next</a>
+        {% endif %}
         </div>
-    {% endfor %}
-
     </div>
-<div class="pagination">
-  {% if current_page > 1 %}
-    <a href="{{ url_for('index', page=current_page-1) }}">Previous</a>
-  {% endif %}
-
-  {% for page_num in range(1, total_pages+1) %}
-    {% if page_num == current_page %}
-      <span class="current-page">{{ page_num }}</span>
-    {% else %}
-      <a href="{{ url_for('index', page=page_num) }}">{{ page_num }}</a>
-    {% endif %}
-  {% endfor %}
-
-  {% if current_page < total_pages %}
-    <a href="{{ url_for('index', page=current_page+1) }}">Next</a>
-  {% endif %}
-</div>
 </body>
 </html>
