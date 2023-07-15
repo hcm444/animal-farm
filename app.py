@@ -94,10 +94,8 @@ def build_thread(posts):
 
     return threads
 
-    posts_with_timestamps = [(post_id, username, content, timestamp) for post_id, username, content, timestamp in posts]
-    threads = build_thread(posts_with_timestamps)
 
-    return render_template("index.html", threads=threads)
+
 
 
 @app.route("/about")
