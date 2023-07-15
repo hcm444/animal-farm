@@ -2,3 +2,12 @@ body {
   background-color: black;
   color: #0F0;
 }
+
+a:hover {
+  color: lightgreen;
+}
+
+/* Style the link when visited */
+a:visited {
+  color: darkgreen;
+}
