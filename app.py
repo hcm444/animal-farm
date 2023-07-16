@@ -251,10 +251,30 @@ def register():
         username = request.form.get("username")
         email = request.form.get("email")
         password = request.form.get("password")
-        if len(username) > 20:
+        # Need to make sure len is not None
+        if username is not None and len(username) > 20:
             return "Username cannot exceed 20 characters."
         # Validate email format and other form fields if needed
 
+        '''
+        Password requirments:
+        - 10 chars long
+        - at least one uppercase
+        - at least one lowercase
+        - at least one digit
+        - at least one special char
+        '''
+        if (
+            # Need to check for None again
+            password is None or len(password) < 10
+            or not re.search(r"\d", password)
+            or not re.search(r"[A-Z]", password)
+            or not re.search(r"[a-z]", password)
+            or not re.search(r"[!@#$%^&*()\-_=+{};:,<.>]", password)
+        ):
+            # redirect if requirements are not met
+            return redirect(url_for("register"))
+        
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
         with sqlite3.connect(DATABASE) as connection:
@@ -324,3 +344,4 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
