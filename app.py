@@ -27,7 +27,7 @@ def create_users_last_post_table():
     with sqlite3.connect(DATABASE) as connection:
         cursor = connection.cursor()
         cursor.execute(
-            f"CREATE TABLE IF NOT EXISTS {USERS_TABLE} (username TEXT(20) PRIMARY KEY, password TEXT, email TEXT, ip_address TEXT)"
+            f"CREATE TABLE IF NOT EXISTS {USERS_LAST_POST_TABLE} (username TEXT PRIMARY KEY, last_post_time REAL)"
         )
 
 
@@ -47,7 +47,7 @@ def extract_reply_id(content):
 with sqlite3.connect(DATABASE) as connection:
     cursor = connection.cursor()
     cursor.execute(
-        f"CREATE TABLE IF NOT EXISTS {USERS_TABLE} (username TEXT PRIMARY KEY, password TEXT,email TEXT, ip_address TEXT)"
+        f"CREATE TABLE IF NOT EXISTS {USERS_TABLE} (username TEXT(20) PRIMARY KEY, password TEXT, email TEXT, ip_address TEXT)"
     )
     cursor.execute(
         f"CREATE TABLE IF NOT EXISTS {POSTS_TABLE} (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, reply_id INTEGER, timestamp REAL)"
@@ -251,10 +251,8 @@ def register():
         username = request.form.get("username")
         email = request.form.get("email")
         password = request.form.get("password")
-        # Validate username length
         if len(username) > 20:
             return "Username cannot exceed 20 characters."
-
         # Validate email format and other form fields if needed
 
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
