@@ -26,9 +26,8 @@ a:visited {
 }
 
 .grid {
-  inline-size: 90%;
-  margin-inline: auto;
-  max-inline-size: 20rem;
+  inline-size: 100%;
+  max-inline-size: 30rem;
   color: #afafaf;
 }
 
