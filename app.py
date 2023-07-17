@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import sqlite3
 import hashlib
 import re
@@ -241,6 +241,14 @@ def post():
         return redirect(url_for("index"))
     else:
         return redirect(url_for("login"))
+    
+# Validate email format
+def validate_email(email):
+    pattern = r"[^@]+@[^@]+\.[^@]+"
+    if re.match(pattern, email):
+        return True
+    else:
+        return False
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -251,10 +259,38 @@ def register():
         username = request.form.get("username")
         email = request.form.get("email")
         password = request.form.get("password")
-        if len(username) > 20:
-            return "Username cannot exceed 20 characters."
-        # Validate email format and other form fields if needed
-
+        error_flag = False
+        # Need to make sure len is not None
+        if username is not None and len(username) > 20:
+            flash("Username cannot exceed 20 characters")
+            error_flag = True
+        if email is not None and not validate_email(email):
+            flash("Email format invalid")
+            error_flag = True
+        
+        if error_flag:
+            return redirect(url_for("register"))
+        
+        '''
+        Password requirments:
+        - 10 chars long
+        - at least one uppercase
+        - at least one lowercase
+        - at least one digit
+        - at least one special char
+        '''
+        if (
+            # Need to check for None again
+            password is None or len(password) < 10
+            or not re.search(r"\d", password)
+            or not re.search(r"[A-Z]", password)
+            or not re.search(r"[a-z]", password)
+            or not re.search(r"[!@#$%^&*()\-_=+{};:,<.>]", password)
+        ):
+            # redirect if requirements are not met
+            flash("""Your password does not meet the following requirements:\n- 10 characters or greater\n- At least one lowercase letter\n- At least one uppercase letter\n- At least one number\n- At least one special character""")
+            return redirect(url_for("register"))
+        
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
         with sqlite3.connect(DATABASE) as connection:
@@ -265,7 +301,8 @@ def register():
             )
             existing_user = cursor.fetchone()
             if existing_user:
-                return "Email already exists"
+                flash("Email already exists")
+                return redirect(url_for("register"))
 
             cursor.execute(
                 f"INSERT INTO {USERS_TABLE} (username, email, password) VALUES (?, ?, ?)",
@@ -292,7 +329,8 @@ def login():
             result = cursor.fetchone()
 
             if result is None:
-                return "Invalid username or password"
+                flash("Invalid username or password")
+                return redirect(url_for("index"))
 
             stored_password = result[0]
 
@@ -313,7 +351,8 @@ def login():
 
                 return redirect(url_for("index"))
             else:
-                return "Invalid username or password"
+                flash("Invalid username or password")
+                return redirect(url_for("index"))
 
 
 @app.route("/logout")

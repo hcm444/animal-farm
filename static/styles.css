@@ -3,6 +3,23 @@ body {
   color: lightgreen;
 }
 
+.hidden {
+  display: none;
+}
+
+.messages {
+  list-style-type: none;
+  padding: 10px;
+  margin: 10px 0;
+  background-color: #af4949;
+  color: #ffffff;
+  border-radius: 5px;
+}
+
+.messages li {
+  margin: 5px 0;
+}
+
 
 /* Style the link when visited */
 a:visited {
