@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import sqlite3
 import hashlib
 import re
@@ -273,6 +273,7 @@ def register():
             or not re.search(r"[!@#$%^&*()\-_=+{};:,<.>]", password)
         ):
             # redirect if requirements are not met
+            flash("""Your password does not meet the following requirements:\n- 10 characters or greater\n- At least one lowercase letter\n- At least one uppercase letter\n- At least one number\n- At least one special character""")
             return redirect(url_for("register"))
         
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
