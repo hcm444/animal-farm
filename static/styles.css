@@ -123,6 +123,30 @@ body {
   --anchorColor: #eee;
 }
 
+.nav-link-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.nav-link {
+  display: flex;
+  justify-content: center; /* Centers the text horizontally */
+  align-items: center; /* Centers the text vertically */
+  padding: 10px 20px;
+  background-color: #afafaf;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  font-size: inherit;
+  inline-size: 48%;
+}
+
+.nav-link:hover {
+  background-color: #c15757;
+  text-decoration: none; /* Removes underline on hover */
+}
+
 a {
   color: var(--anchorColor);
   outline: 0;
