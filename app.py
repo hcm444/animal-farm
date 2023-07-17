@@ -117,7 +117,7 @@ def post():
                 cooldown_period = COOL_DOWN_TIME
 
                 time_since_last_post = current_time - last_post_time
-                if time_since_last_post < cooldown_period:
+                if cooldown_period > 0 and time_since_last_post < cooldown_period:
                     remaining_time = cooldown_period - time_since_last_post
                     flash(f"You can only post once every 30 seconds. Please wait {int(remaining_time)} seconds.")
 
@@ -151,7 +151,7 @@ def post():
             )
             existing_post = cursor.fetchone()
             if existing_post:
-                return "Post already exists"
+                flash("Post already exists")
             utc_timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             cursor.execute(
                 f"INSERT INTO {POSTS_TABLE} (username, content, reply_id, timestamp) VALUES (?, ?, ?, ?)",
