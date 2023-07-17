@@ -241,6 +241,14 @@ def post():
         return redirect(url_for("index"))
     else:
         return redirect(url_for("login"))
+    
+# Validate email format
+def validate_email(email):
+    pattern = r"[^@]+@[^@]+\.[^@]+"
+    if re.match(pattern, email):
+        return True
+    else:
+        return False
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -251,11 +259,18 @@ def register():
         username = request.form.get("username")
         email = request.form.get("email")
         password = request.form.get("password")
+        error_flag = False
         # Need to make sure len is not None
         if username is not None and len(username) > 20:
-            return "Username cannot exceed 20 characters."
-        # Validate email format and other form fields if needed
-
+            flash("Username cannot exceed 20 characters!")
+            error_flag = True
+        if email is not None and not validate_email(email):
+            flash("Email format invalid!")
+            error_flag = True
+        
+        if error_flag:
+            return redirect(url_for("register"))
+        
         '''
         Password requirments:
         - 10 chars long
@@ -286,7 +301,8 @@ def register():
             )
             existing_user = cursor.fetchone()
             if existing_user:
-                return "Email already exists"
+                flash("Email format exists")
+                return redirect(url_for("register"))
 
             cursor.execute(
                 f"INSERT INTO {USERS_TABLE} (username, email, password) VALUES (?, ?, ?)",
