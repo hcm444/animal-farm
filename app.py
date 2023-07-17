@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from helpers import build_thread, validate_email, create_users_last_post_table, create_users_table, extract_reply_id, DATABASE, USERS_TABLE, POSTS_TABLE, USERS_LAST_POST_TABLE, THREADS_PER_PAGE, MAX_POSTS, MAX_POSTS_PER_THREAD, POST_CHARS_LIMIT, COOL_DOWN_TIME
+from flask import Flask, render_template, request, redirect, url_for, session, flash, session
+from helpers import get_hashed_ip_address, build_thread, validate_email, create_users_last_post_table, create_users_table, extract_reply_id, DATABASE, USERS_TABLE, POSTS_TABLE, USERS_LAST_POST_TABLE, THREADS_PER_PAGE, MAX_POSTS, MAX_POSTS_PER_THREAD, POST_CHARS_LIMIT, COOL_DOWN_TIME
 import sqlite3
 import hashlib
 import re
@@ -254,15 +254,10 @@ def login():
                 # Get the client's IP address
                 ip_address = request.remote_addr
 
-                # scrmable the hash every time a user logins
-                salt = secrets.token_hex(16)
-                salted_ip = ip_address + salt
-                hashed_ip_address = hashlib.sha512(salted_ip.encode()).hexdigest()
-
-                # Save the IP address in the database
+                # Save the IP address in the database and hash it
                 cursor.execute(
                     f"UPDATE {USERS_TABLE} SET ip_address=? WHERE username=?",
-                    (hashed_ip_address, username),
+                    (get_hashed_ip_address(ip_address), username),
                 )
                 connection.commit()
 

@@ -5,6 +5,8 @@ They are called in app.py.
 
 import re
 import sqlite3
+import secrets
+import hashlib
 
 # SQLite database configuration
 DATABASE = "users.db"
@@ -90,3 +92,9 @@ def build_thread(posts):
         threads.append(build_recursive(root_id))
 
     return threads
+
+# helper to hash and scramble ip
+def get_hashed_ip_address(ip_address):
+    salt = secrets.token_hex(16)
+    salted_ip = ip_address + salt
+    return hashlib.sha512(salted_ip.encode()).hexdigest()
