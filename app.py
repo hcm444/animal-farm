@@ -7,7 +7,6 @@ import time
 from flask_caching import Cache
 import datetime
 import math
-import secrets
 
 app = Flask(__name__)
 cache = Cache(app)
