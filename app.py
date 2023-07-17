@@ -262,10 +262,10 @@ def register():
         error_flag = False
         # Need to make sure len is not None
         if username is not None and len(username) > 20:
-            flash("Username cannot exceed 20 characters!")
+            flash("Username cannot exceed 20 characters")
             error_flag = True
         if email is not None and not validate_email(email):
-            flash("Email format invalid!")
+            flash("Email format invalid")
             error_flag = True
         
         if error_flag:
@@ -301,7 +301,7 @@ def register():
             )
             existing_user = cursor.fetchone()
             if existing_user:
-                flash("Email format exists")
+                flash("Email already exists")
                 return redirect(url_for("register"))
 
             cursor.execute(
