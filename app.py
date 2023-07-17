@@ -329,7 +329,8 @@ def login():
             result = cursor.fetchone()
 
             if result is None:
-                return "Invalid username or password"
+                flash("Invalid username or password")
+                return redirect(url_for("index"))
 
             stored_password = result[0]
 
@@ -350,7 +351,8 @@ def login():
 
                 return redirect(url_for("index"))
             else:
-                return "Invalid username or password"
+                flash("Invalid username or password")
+                return redirect(url_for("index"))
 
 
 @app.route("/logout")
