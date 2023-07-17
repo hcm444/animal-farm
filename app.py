@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, session
+from helpers import get_hashed_ip_address, build_thread, validate_email, create_users_last_post_table, create_users_table, extract_reply_id, DATABASE, USERS_TABLE, POSTS_TABLE, USERS_LAST_POST_TABLE, THREADS_PER_PAGE, MAX_POSTS, MAX_POSTS_PER_THREAD, POST_CHARS_LIMIT, COOL_DOWN_TIME
 import sqlite3
 import hashlib
 import re
@@ -6,97 +7,15 @@ import time
 from flask_caching import Cache
 import datetime
 import math
-import secrets
 
 app = Flask(__name__)
 cache = Cache(app)
 app.secret_key = "your-secret-key"
 
-# SQLite database configuration
-DATABASE = "users.db"
-USERS_TABLE = "users"
-POSTS_TABLE = "posts"
-USERS_LAST_POST_TABLE = "users_last_post"
-THREADS_PER_PAGE = 10
-MAX_POSTS = 1000
-MAX_POSTS_PER_THREAD = 10
-POST_CHARS_LIMIT = 500
-COOL_DOWN_TIME = 30
-
-
-def create_users_last_post_table():
-    with sqlite3.connect(DATABASE) as connection:
-        cursor = connection.cursor()
-        cursor.execute(
-            f"CREATE TABLE IF NOT EXISTS {USERS_LAST_POST_TABLE} (username TEXT PRIMARY KEY, last_post_time REAL)"
-        )
-
-
 # Create the users_last_post table if it doesn't exist
 create_users_last_post_table()
-
-
-def extract_reply_id(content):
-    match = re.search(r">>(\d+)", content)
-    if match:
-        return int(match.group(1))
-    else:
-        return None
-
-
-# Create the users table if it doesn't exist
-with sqlite3.connect(DATABASE) as connection:
-    cursor = connection.cursor()
-    cursor.execute(
-        f"CREATE TABLE IF NOT EXISTS {USERS_TABLE} (username TEXT(20) PRIMARY KEY, password TEXT, email TEXT, ip_address TEXT)"
-    )
-    cursor.execute(
-        f"CREATE TABLE IF NOT EXISTS {POSTS_TABLE} (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, reply_id INTEGER, timestamp REAL)"
-    )
-
-
-def build_thread(posts):
-    thread_map = {}
-    root_posts = []
-    post_map = {}
-
-    for post_id, username, content, reply_id, timestamp in posts:
-        post_map[post_id] = {
-            "post_id": post_id,
-            "username": username,
-            "content": content,
-            "children": [],
-            "timestamp": timestamp,
-        }
-
-        if reply_id is None:
-            root_posts.append(post_id)
-        else:
-            if reply_id in thread_map:
-                thread_map[reply_id].append(post_id)
-            else:
-                thread_map[reply_id] = [post_id]
-
-    def build_recursive(post_id):
-        post_data = post_map[post_id]
-        children = thread_map.get(post_id, [])
-
-        sorted_children = sorted(children)  # Sort children based on post ID
-
-        for child_id in sorted_children:
-            child_data = post_map[child_id]
-            post_data["children"].append(build_recursive(child_id))
-
-        return post_data
-
-    threads = []
-    for root_id in root_posts:
-        threads.append(build_recursive(root_id))
-
-    return threads
-
-
-
+# Create the user_table table if it doesn't exist
+create_users_table()
 
 
 @app.route("/about")
@@ -197,9 +116,9 @@ def post():
                 cooldown_period = COOL_DOWN_TIME
 
                 time_since_last_post = current_time - last_post_time
-                if time_since_last_post < cooldown_period:
+                if cooldown_period > 0 and time_since_last_post < cooldown_period:
                     remaining_time = cooldown_period - time_since_last_post
-                    return f"You can only post once every 30 seconds. Please wait {int(remaining_time)} seconds."
+                    flash(f"You can only post once every 30 seconds. Please wait {int(remaining_time)} seconds.")
 
             # Update the last post time for the user
             current_time = time.time()
@@ -231,7 +150,7 @@ def post():
             )
             existing_post = cursor.fetchone()
             if existing_post:
-                return "Post already exists"
+                flash("Post already exists")
             utc_timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             cursor.execute(
                 f"INSERT INTO {POSTS_TABLE} (username, content, reply_id, timestamp) VALUES (?, ?, ?, ?)",
@@ -242,15 +161,6 @@ def post():
         return redirect(url_for("index"))
     else:
         return redirect(url_for("login"))
-    
-# Validate email format
-def validate_email(email):
-    pattern = r"[^@]+@[^@]+\.[^@]+"
-    if re.match(pattern, email):
-        return True
-    else:
-        return False
-
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -343,15 +253,10 @@ def login():
                 # Get the client's IP address
                 ip_address = request.remote_addr
 
-                # scrmable the hash every time a user logins
-                salt = secrets.token_hex(16)
-                salted_ip = ip_address + salt
-                hashed_ip_address = hashlib.sha512(salted_ip.encode()).hexdigest()
-
-                # Save the IP address in the database
+                # Save the IP address in the database and hash it
                 cursor.execute(
                     f"UPDATE {USERS_TABLE} SET ip_address=? WHERE username=?",
-                    (hashed_ip_address, username),
+                    (get_hashed_ip_address(ip_address), username),
                 )
                 connection.commit()
 
