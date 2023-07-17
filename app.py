@@ -6,6 +6,7 @@ import time
 from flask_caching import Cache
 import datetime
 import math
+import secrets
 
 app = Flask(__name__)
 cache = Cache(app)
@@ -342,10 +343,15 @@ def login():
                 # Get the client's IP address
                 ip_address = request.remote_addr
 
+                # scrmable the hash every time a user logins
+                salt = secrets.token_hex(16)
+                salted_ip = ip_address + salt
+                hashed_ip_address = hashlib.sha512(salted_ip.encode()).hexdigest()
+
                 # Save the IP address in the database
                 cursor.execute(
                     f"UPDATE {USERS_TABLE} SET ip_address=? WHERE username=?",
-                    (ip_address, username),
+                    (hashed_ip_address, username),
                 )
                 connection.commit()
 
