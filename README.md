@@ -9,31 +9,22 @@ https://urchin-app-ihlrx.ondigitalocean.app/
 - User registration and login system
 - Posting and replying to threads
 - Thread pagination
-- Content character limit
-- Cooldown period between posts
+- Post data API
 
 ## Installation
 
 1. Clone the repository:
-
 ```
-git clone <repository-url>
+git clone https://github.com/hcm444/animal-farm
 ```
 2. Install the required dependencies:
 ```
 pip install -r requirements.txt
 ```
-3. Set up the database:
-- Create a SQLite database file named `users.db`.
-- Run the database migration script to create the necessary tables:
+3. Run the application:
 ```
-python migration.py
+python app.py
 ```
-
-4. Run the application:
-  ```
-  python app.py
-  ```
 ## Usage
 
 1. Access the application by visiting [http://localhost:5000](http://localhost:5000) in your web browser.
