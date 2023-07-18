@@ -25,6 +25,11 @@ pip install -r requirements.txt
 ```
 python app.py
 ```
+If you'd like to replicate the database from the site, run download.py:
+```
+python download.py
+```
+
 ## Usage
 
 1. Access the application by visiting [http://localhost:5000](http://localhost:5000) in your web browser.
