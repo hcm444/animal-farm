@@ -25,7 +25,7 @@ pip install -r requirements.txt
 ```
 python app.py
 ```
-If you'd like to replicate the database from the site, run download.py:
+4. If you'd like to replicate the database from the site, run download.py:
 ```
 python download.py
 ```
