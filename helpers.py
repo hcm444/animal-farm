@@ -32,7 +32,7 @@ def create_users_last_post_table():
     with sqlite3.connect(DATABASE) as connection:
         cursor = connection.cursor()
         cursor.execute(
-            f"CREATE TABLE IF NOT EXISTS {USERS_LAST_POST_TABLE} (username TEXT PRIMARY KEY, last_post_time REAL)"
+            f"CREATE TABLE IF NOT EXISTS {USERS_LAST_POST_TABLE} (username TEXT PRIMARY KEY, last_post_time TIMESTAMP)"
         )
 
 # create the users table    
