@@ -121,7 +121,7 @@ def post():
                     flash(f"You can only post once every 30 seconds. Please wait {int(remaining_time)} seconds.")
 
             # Update the last post time for the user
-            current_time = time.time()
+            current_time = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             cursor.execute(
                 f"REPLACE INTO {USERS_LAST_POST_TABLE} (username, last_post_time) VALUES (?, ?)",
                 (username, current_time),
