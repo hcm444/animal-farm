@@ -3,9 +3,9 @@ from helpers import get_hashed_ip_address, build_thread, validate_email, create_
 import sqlite3
 import hashlib
 import re
-import time
 from flask_caching import Cache
-import datetime
+#import datetime
+from datetime import datetime
 import math
 
 app = Flask(__name__)
@@ -111,20 +111,23 @@ def post():
             )
             result = cursor.fetchone()
             if result is not None:
-                last_post_time = result[0]
-                current_time = time.time()
+                last_post_time_str = result[0]
+                last_post_time = datetime.strptime(last_post_time_str, "%Y-%m-%d %H:%M:%S")
+                current_time = datetime.now()
                 cooldown_period = COOL_DOWN_TIME
 
                 time_since_last_post = current_time - last_post_time
-                if cooldown_period > 0 and time_since_last_post < cooldown_period:
+                if cooldown_period > 0 and time_since_last_post.total_seconds() < cooldown_period:
                     remaining_time = cooldown_period - time_since_last_post
                     flash(f"You can only post once every 30 seconds. Please wait {int(remaining_time)} seconds.")
 
             # Update the last post time for the user
-            current_time = time.time()
+            current_time = datetime.now()
+            current_time = current_time.replace(microsecond=0)  # Drop milliseconds
+            current_time_str = current_time.strftime("%Y-%m-%d %H:%M:%S")
             cursor.execute(
                 f"REPLACE INTO {USERS_LAST_POST_TABLE} (username, last_post_time) VALUES (?, ?)",
-                (username, current_time),
+                (username, current_time_str),
             )
             connection.commit()
 
@@ -151,7 +154,7 @@ def post():
             existing_post = cursor.fetchone()
             if existing_post:
                 flash("Post already exists")
-            utc_timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            utc_timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             cursor.execute(
                 f"INSERT INTO {POSTS_TABLE} (username, content, reply_id, timestamp) VALUES (?, ?, ?, ?)",
                 (username, content, reply_id, utc_timestamp),
