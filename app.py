@@ -21,21 +21,18 @@ create_users_table()
 
 @app.route("/api/data")
 def get_data():
-    if "username" in session:
-        # Fetch all data from the database
-        with sqlite3.connect(DATABASE) as connection:
-            cursor = connection.cursor()
-            cursor.execute(f"SELECT * FROM {POSTS_TABLE}")
-            data = cursor.fetchall()
+    # Fetch all data from the database
+    with sqlite3.connect(DATABASE) as connection:
+        cursor = connection.cursor()
+        cursor.execute(f"SELECT * FROM {POSTS_TABLE}")
+        data = cursor.fetchall()
 
-        # Prepare JSON response
-        response = {
-            "data": data
-        }
+    # Prepare JSON response
+    response = {
+        "data": data
+    }
 
-        return jsonify(response)
-    else:
-        return jsonify({"error": "Unauthorized"})
+    return jsonify(response)
 
 @app.route("/about")
 @cache.cached(timeout=60)  # Cache the about page for 60 seconds
