@@ -28,11 +28,14 @@ def get_data():
             cursor.execute(f"SELECT * FROM {POSTS_TABLE}")
             data = cursor.fetchall()
 
-        # Convert the data to a JSON response
-        response = jsonify(data)
-        return response
+        # Prepare JSON response
+        response = {
+            "data": data
+        }
+
+        return jsonify(response)
     else:
-        return redirect(url_for("login"))
+        return jsonify({"error": "Unauthorized"})
 
 @app.route("/about")
 @cache.cached(timeout=60)  # Cache the about page for 60 seconds
