@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, session
-from helpers import get_hashed_ip_address, build_thread, validate_email, create_users_last_post_table, create_users_table, extract_reply_id, DATABASE, USERS_TABLE, POSTS_TABLE, USERS_LAST_POST_TABLE, THREADS_PER_PAGE, MAX_POSTS, MAX_POSTS_PER_THREAD, POST_CHARS_LIMIT, COOL_DOWN_TIME
+from helpers import get_hashed_ip_address, build_thread, validate_email, create_users_last_post_table, \
+    create_users_table, extract_reply_id, DATABASE, USERS_TABLE, POSTS_TABLE, USERS_LAST_POST_TABLE, THREADS_PER_PAGE, \
+    MAX_POSTS, MAX_POSTS_PER_THREAD, POST_CHARS_LIMIT, COOL_DOWN_TIME
 import sqlite3
 import hashlib
 import re
@@ -166,6 +168,7 @@ def post():
     else:
         return redirect(url_for("login"))
 
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
@@ -182,10 +185,10 @@ def register():
         if email is not None and not validate_email(email):
             flash("Email format invalid")
             error_flag = True
-        
+
         if error_flag:
             return redirect(url_for("register"))
-        
+
         '''
         Password requirments:
         - 10 chars long
@@ -195,17 +198,18 @@ def register():
         - at least one special char
         '''
         if (
-            # Need to check for None again
-            password is None or len(password) < 10
-            or not re.search(r"\d", password)
-            or not re.search(r"[A-Z]", password)
-            or not re.search(r"[a-z]", password)
-            or not re.search(r"[!@#$%^&*()\-_=+{};:,<.>]", password)
+                # Need to check for None again
+                password is None or len(password) < 10
+                or not re.search(r"\d", password)
+                or not re.search(r"[A-Z]", password)
+                or not re.search(r"[a-z]", password)
+                or not re.search(r"[!@#$%^&*()\-_=+{};:,<.>]", password)
         ):
             # redirect if requirements are not met
-            flash("""Your password does not meet the following requirements:\n- 10 characters or greater\n- At least one lowercase letter\n- At least one uppercase letter\n- At least one number\n- At least one special character""")
+            flash(
+                """Your password does not meet the following requirements:\n- 10 characters or greater\n- At least one lowercase letter\n- At least one uppercase letter\n- At least one number\n- At least one special character""")
             return redirect(url_for("register"))
-        
+
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
         with sqlite3.connect(DATABASE) as connection:
