@@ -8,6 +8,7 @@ import re
 from flask_caching import Cache
 from datetime import datetime
 import math
+from flask import jsonify
 
 app = Flask(__name__)
 cache = Cache(app)
@@ -18,6 +19,20 @@ create_users_last_post_table()
 # Create the user_table table if it doesn't exist
 create_users_table()
 
+@app.route("/api/data")
+def get_data():
+    if "username" in session:
+        # Fetch all data from the database
+        with sqlite3.connect(DATABASE) as connection:
+            cursor = connection.cursor()
+            cursor.execute(f"SELECT * FROM {POSTS_TABLE}")
+            data = cursor.fetchall()
+
+        # Convert the data to a JSON response
+        response = jsonify(data)
+        return response
+    else:
+        return redirect(url_for("login"))
 
 @app.route("/about")
 @cache.cached(timeout=60)  # Cache the about page for 60 seconds
