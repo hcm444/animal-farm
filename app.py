@@ -19,20 +19,34 @@ create_users_last_post_table()
 # Create the user_table table if it doesn't exist
 create_users_table()
 
+
 @app.route("/api/data")
 def get_data():
-    # Fetch all data from the database
+    # Fetch data from multiple tables
     with sqlite3.connect(DATABASE) as connection:
         cursor = connection.cursor()
+
+        # Select everything from POSTS_TABLE
         cursor.execute(f"SELECT * FROM {POSTS_TABLE}")
-        data = cursor.fetchall()
+        posts_data = cursor.fetchall()
+
+        # Select everything from USERS_LAST_POST_TABLE
+        cursor.execute(f"SELECT * FROM {USERS_LAST_POST_TABLE}")
+        last_post_data = cursor.fetchall()
+
+        # Select only the first column from USERS_TABLE
+        cursor.execute(f"SELECT username, NULL, NULL, NULL FROM {USERS_TABLE}")
+        users_data = cursor.fetchall()
 
     # Prepare JSON response
     response = {
-        "data": data
+        "posts_data": posts_data,
+        "last_post_data": last_post_data,
+        "users_data": users_data
     }
 
     return jsonify(response)
+
 
 @app.route("/about")
 @cache.cached(timeout=60)  # Cache the about page for 60 seconds
